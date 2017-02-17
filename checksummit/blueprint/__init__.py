@@ -11,9 +11,9 @@ disallowed_algos = []
 disallowed_algos = set(disallowed_algos)
 
 
-blueprint = Blueprint('checksummit', __name__)
+BLUEPRINT = Blueprint('checksummit', __name__)
 
-api = Api(blueprint)
+API = Api(BLUEPRINT)
 
 
 def produce_checksums(f, hashers):
@@ -49,4 +49,4 @@ class FileIn(Resource):
         return {request.files[x].name: produce_checksums(request.files[x], hashers) for x in request.files}
 
 
-api.add_resource(FileIn, '/')
+API.add_resource(FileIn, '/')

@@ -1,6 +1,6 @@
 from flask import Flask
-from .blueprints import blueprint
+from .blueprint import BLUEPRINT
 
 app = Flask(__name__)
 
-app.register_blueprint(blueprint)
+app.register_blueprint(BLUEPRINT)
