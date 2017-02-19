@@ -1,23 +1,34 @@
-from hashlib import new, algorithms_available
+from hashlib import new
 
 from flask import Blueprint, request
 from flask_restful import Resource, Api, reqparse
 
 from nothashes import crc32, adler32
 
-additional_algos = ["crc32", "adler32"]
-additional_algos = set(additional_algos)
-disallowed_algos = []
-disallowed_algos = set(disallowed_algos)
-
-
 BLUEPRINT = Blueprint('checksummit', __name__)
+
+BLUEPRINT.config = {
+    'DISALLOWED_ALGOS': [],
+    'BUFF': 1024*1000*8
+}
+
 
 API = Api(BLUEPRINT)
 
 
+def get_hasher_obj(x):
+    additional_algos = {
+        "crc32": crc32,
+        "adler32": adler32
+    }
+    if x in additional_algos:
+        return additional_algos[x]()
+    else:
+        return new(x)
+
+
 def produce_checksums(f, hashers):
-    data = f.read()
+    data = f.read(BLUEPRINT.config['BUFF'])
     while data:
         for x in hashers:
             x.update(data)
@@ -30,23 +41,29 @@ class FileIn(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('hash', action="append")
         args = parser.parse_args()
+        if len(request.files) < 1:
+            return {"message": "No file(s) detected."}
+        if len(request.files) > 1:
+            return {"message": "Too many files"}
+        if len(args['hash']) < 1:
+            return {"message": "No hashes detected"}
         hashers = []
         for x in args['hash']:
-            if x in disallowed_algos:
+            if x in BLUEPRINT.config['DISALLOWED_ALGOS']:
                 return {"message": "Disallowed algorithm included. ({})".format(x)}
-            elif x not in algorithms_available and x not in additional_algos:
-                return {"message": "Algorithm not supported. ({})".format(x)}
-            elif x == "crc32":
-                hashers.append(crc32())
-            elif x == "adler32":
-                hashers.append(adler32())
-            else:
-                hashers.append(new(x))
+            try:
+                h = get_hasher_obj(x)
+                hashers.append(h)
+            except:
+                return {"message": "Unsupported algorithm included ({}".format(x)}
 
-        if len(request.files) < 1:
-                return {"message": "No file(s) detected."}
+        file_key = [x for x in request.files.keys()][0]
+        return produce_checksums(request.files[file_key], hashers)
 
-        return {request.files[x].name: produce_checksums(request.files[x], hashers) for x in request.files}
 
+@BLUEPRINT.record
+def handle_configs(setup_state):
+    app = setup_state.app
+    BLUEPRINT.config.update(app.config)
 
 API.add_resource(FileIn, '/')
