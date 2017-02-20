@@ -1,4 +1,4 @@
-A RESTful API for computing checksums and hashes
+An API for computing checksums and hashes
 
 ## Endpoints
 
