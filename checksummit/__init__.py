@@ -1,12 +1,16 @@
 from flask import Flask
-from .blueprint import BLUEPRINT
+from .blueprint import BLUEPRINT, __version__, __email__, __author__
+from flask_env import MetaFlaskEnv
+
+
+class Configuration(metaclass=MetaFlaskEnv):
+    ENV_PREFIX = 'CHECKSUMMIT_'
+    DEBUG = False
+    DEFER_CONFIG = False
+
 
 app = Flask(__name__)
 
-
-#app.config['DISALLOWED_ALGOS'] = ["md5", "crc32"]
-#app.config['BUFF'] = 1024*1000*8
-app.config.from_envvar('CHECKSUMMIT_CONFIG', silent=True)
-
+app.config.from_object(Configuration)
 
 app.register_blueprint(BLUEPRINT)

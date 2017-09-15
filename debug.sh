@@ -1,4 +1,3 @@
 #!/bin/sh
 
-export FLASK_APP=checksummit
-python -m flask run
+FLASK_APP=checksummit python -m flask run -h 0.0.0.0 -p 5000
