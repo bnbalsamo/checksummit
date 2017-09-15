@@ -21,11 +21,18 @@ Inject environmental variables appropriately at either buildtime or runtime
 
 # Endpoints
 ## /
-### GET
+### POST
 #### Parameters
+* file: The file top hash
+* hash (repeatable): The algorithms to use
+#### Returns
+* JSON: {"$hashname": "$hash_hex_digest" for each hash requested}
+## /available
+### GET
+#### Paramters
 * None
 #### Returns
-* JSON: {"status": "Not broken!"}
+* JSON: A list of all available hasher names
 
 # Environmental Variables
 * None

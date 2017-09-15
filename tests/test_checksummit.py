@@ -12,6 +12,7 @@ class Tests(unittest.TestCase):
     def setUp(self):
         # Perform any setup that should occur
         # before every test
+        checksummit.blueprint.BLUEPRINT.config['DISALLOWED_ALGOS'] = []
         self.app = checksummit.app.test_client()
 
     def tearDown(self):
@@ -35,6 +36,12 @@ class Tests(unittest.TestCase):
             checksummit.blueprint.__version__,
             api_reported_version
         )
+
+    def testAvailableAlgos(self):
+        r = self.app.get("/available")
+        self.assertEqual(r.status_code, 200)
+        x = json.loads(r.data.decode())
+        self.assertTrue(isinstance(x, list))
 
 
 if __name__ == "__main__":

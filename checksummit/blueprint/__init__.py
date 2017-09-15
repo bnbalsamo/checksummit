@@ -10,6 +10,7 @@ from .exceptions import Error
 
 from nothashes import crc32, adler32
 import multihash
+# Add crc32 and adler32 to the multihash interface
 multihash.additional_hashers.add(crc32)
 multihash.additional_hashers.add(adler32)
 
@@ -54,22 +55,30 @@ class FileIn(Resource):
             return {"message": "No hashes detected"}
 
         hashers = []
-        for x in args['hash']:
-            if x in BLUEPRINT.config['DISALLOWED_ALGOS']:
-                return {"message": "Disallowed algorithm included. ({})".format(x)}
+        for n in args['hash']:
+            if n in BLUEPRINT.config['DISALLOWED_ALGOS']:
+                return {"message": "Disallowed algorithm included. ({})".format(n)}
             try:
-                h = multihash.new(x)
-                hashers.append(h)
+                hashers.append(
+                    multihash.new(n)
+                )
             except:
-                return {"message": "Unsupported algorithm included ({}".format(x)}
+                return {"message": "Unsupported algorithm included ({}".format(n)}
 
         file_key = [x for x in request.files.keys()][0]
-        x = multihash.MultiHash.from_flo(
+        h = multihash.MultiHash.from_flo(
             request.files[file_key],
             hashers=hashers,
             chunksize=BLUEPRINT.config['BUFF']
         )
-        return x.hexdigest()
+        return h.hexdigest()
+
+
+class AvailableAlgos(Resource):
+    def get(self):
+        return list(
+            multihash.algorithms_available().difference(set(BLUEPRINT.config['DISALLOWED_ALGOS']))
+        )
 
 
 @BLUEPRINT.record
@@ -95,3 +104,4 @@ def handle_configs(setup_state):
 
 API.add_resource(FileIn, "/")
 API.add_resource(Version, "/version")
+API.add_resource(AvailableAlgos, "/available")
