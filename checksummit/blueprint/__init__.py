@@ -1,39 +1,42 @@
-from hashlib import new
+"""
+checksummit
+"""
+import logging
 
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 from flask_restful import Resource, Api, reqparse
 
-from nothashes import crc32, adler32
+from .exceptions import Error
+
+from multihash import MultiHash, new
+
+__author__ = "Brian Balsamo"
+__email__ = "brian@brianbalsamo.com"
+__version__ = "0.0.1"
+
 
 BLUEPRINT = Blueprint('checksummit', __name__)
 
 BLUEPRINT.config = {
     'DISALLOWED_ALGOS': [],
-    'BUFF': 1024*1000*8
+    'BUFF': 1024*1000
 }
-
 
 API = Api(BLUEPRINT)
 
-
-def get_hasher_obj(x):
-    additional_algos = {
-        "crc32": crc32,
-        "adler32": adler32
-    }
-    if x in additional_algos:
-        return additional_algos[x]()
-    else:
-        return new(x)
+log = logging.getLogger(__name__)
 
 
-def produce_checksums(f, hashers):
-    data = f.read(BLUEPRINT.config['BUFF'])
-    while data:
-        for x in hashers:
-            x.update(data)
-        data = f.read()
-    return {x.name: x.hexdigest() for x in hashers}
+@BLUEPRINT.errorhandler(Error)
+def handle_errors(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
+class Version(Resource):
+    def get(self):
+        return {"version": __version__}
 
 
 class FileIn(Resource):
@@ -47,23 +50,41 @@ class FileIn(Resource):
             return {"message": "Too many files"}
         if len(args['hash']) < 1:
             return {"message": "No hashes detected"}
+
         hashers = []
         for x in args['hash']:
             if x in BLUEPRINT.config['DISALLOWED_ALGOS']:
                 return {"message": "Disallowed algorithm included. ({})".format(x)}
             try:
-                h = get_hasher_obj(x)
+                h = new(x)
                 hashers.append(h)
             except:
                 return {"message": "Unsupported algorithm included ({}".format(x)}
 
         file_key = [x for x in request.files.keys()][0]
-        return produce_checksums(request.files[file_key], hashers)
+        x = MultiHash.from_flo(
+            request.files[file_key],
+            hashers=hashers,
+            chunksize=BLUEPRINT.config['BUFF']
+        )
+        return x.hexdigest()
 
 
 @BLUEPRINT.record
 def handle_configs(setup_state):
     app = setup_state.app
     BLUEPRINT.config.update(app.config)
+    if BLUEPRINT.config.get('DEFER_CONFIG'):
+        log.debug("DEFER_CONFIG set, skipping configuration")
+        return
 
-API.add_resource(FileIn, '/')
+    if BLUEPRINT.config.get("VERBOSITY"):
+        log.debug("Setting verbosity to {}".format(str(BLUEPRINT.config['VERBOSITY'])))
+        logging.basicConfig(level=BLUEPRINT.config['VERBOSITY'])
+    else:
+        log.debug("No verbosity option set, defaulting to WARN")
+        logging.basicConfig(level="WARN")
+
+
+API.add_resource(FileIn, "/")
+API.add_resource(Version, "/version")

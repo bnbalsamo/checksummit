@@ -1,14 +1,34 @@
+# checksummit
+
+v0.0.1
+
+[![Build Status](https://travis-ci.org/bnbalsamo/checksummit.svg?branch=master)](https://travis-ci.org/bnbalsamo/checksummit) [![Coverage Status](https://coveralls.io/repos/github/bnbalsamo/checksummit/badge.svg?branch=master)](https://coveralls.io/github/bnbalsamo/checksummit?branch=master)
+
 An API for computing checksums and hashes
 
-## Endpoints
-
-### /
-
-Supported Methods: POST
-
-Accepts file like objects and supported hash=X form elements
-
+# Debug Quickstart
+Set environmental variables appropriately
 ```
-$ curl 127.0.0.1:8910 -X POST -F "file"=@file1.txt -F hash=sha256 -F hash=md5
-{"md5": "0039ee16ab0d1b77de1e300241c780b9", "sha256": "aff6d8d3665493e2e1be2a05b8b9cc1df8bba6e6c1d10e8d931bb4b6099922d8"}
+./debug.sh
 ```
+
+# Docker Quickstart
+Inject environmental variables appropriately at either buildtime or runtime
+```
+# docker build . -t checksummit
+# docker run -p 5000:80 checksummit --name my_checksummit
+```
+
+# Endpoints
+## /
+### GET
+#### Parameters
+* None
+#### Returns
+* JSON: {"status": "Not broken!"}
+
+# Environmental Variables
+* None
+
+# Author
+Brian Balsamo <brian@brianbalsamo.com>
