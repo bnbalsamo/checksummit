@@ -23,7 +23,14 @@ Inject environmental variables appropriately at either buildtime or runtime
 ## /
 ### POST
 #### Parameters
-* file: The file top hash
+* file: The file to hash
+* hash (repeatable): The algorithms to use
+#### Returns
+* JSON: {"$hashname": "$hash_hex_digest" for each hash requested}
+## /text
+### POST
+#### Paramters
+* text: The text to hash
 * hash (repeatable): The algorithms to use
 #### Returns
 * JSON: {"$hashname": "$hash_hex_digest" for each hash requested}

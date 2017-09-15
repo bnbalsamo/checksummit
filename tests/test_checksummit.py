@@ -1,5 +1,6 @@
 import unittest
 import json
+import hashlib
 from os import environ
 
 # Defer any configuration to the tests setUp()
@@ -42,6 +43,13 @@ class Tests(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         x = json.loads(r.data.decode())
         self.assertTrue(isinstance(x, list))
+
+    def testHashText(self):
+        text = "test"
+        text_hash = hashlib.sha256(text.encode()).hexdigest()
+        r = self.app.post("/text", data={"text": text, "hash": ['sha256']})
+        r_hash = json.loads(r.data.decode())['sha256']
+        self.assertEqual(text_hash, r_hash)
 
 
 if __name__ == "__main__":

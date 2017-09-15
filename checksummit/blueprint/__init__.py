@@ -74,6 +74,33 @@ class FileIn(Resource):
         return h.hexdigest()
 
 
+class TextIn(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('hash', action="append")
+        parser.add_argument('text')
+        args = parser.parse_args()
+        if len(args['hash']) < 1:
+            return {"message": "No hashes detected"}
+
+        hashers = []
+        for n in args['hash']:
+            if n in BLUEPRINT.config['DISALLOWED_ALGOS']:
+                return {"message": "Disallowed algorithm included. ({})".format(n)}
+            try:
+                hashers.append(
+                    multihash.new(n)
+                )
+            except:
+                return {"message": "Unsupported algorithm included ({}".format(n)}
+
+        h = multihash.MultiHash(
+            args['text'].encode(),
+            hashers=hashers
+        )
+        return h.hexdigest()
+
+
 class AvailableAlgos(Resource):
     def get(self):
         return list(
@@ -103,5 +130,6 @@ def handle_configs(setup_state):
 
 
 API.add_resource(FileIn, "/")
+API.add_resource(TextIn, "/text")
 API.add_resource(Version, "/version")
 API.add_resource(AvailableAlgos, "/available")
