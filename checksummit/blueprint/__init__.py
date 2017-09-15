@@ -8,7 +8,10 @@ from flask_restful import Resource, Api, reqparse
 
 from .exceptions import Error
 
-from multihash import MultiHash, new
+from nothashes import crc32, adler32
+import multihash
+multihash.additional_hashers.add(crc32)
+multihash.additional_hashers.add(adler32)
 
 __author__ = "Brian Balsamo"
 __email__ = "brian@brianbalsamo.com"
@@ -18,7 +21,6 @@ __version__ = "0.0.1"
 BLUEPRINT = Blueprint('checksummit', __name__)
 
 BLUEPRINT.config = {
-    'DISALLOWED_ALGOS': [],
     'BUFF': 1024*1000
 }
 
@@ -56,13 +58,13 @@ class FileIn(Resource):
             if x in BLUEPRINT.config['DISALLOWED_ALGOS']:
                 return {"message": "Disallowed algorithm included. ({})".format(x)}
             try:
-                h = new(x)
+                h = multihash.new(x)
                 hashers.append(h)
             except:
                 return {"message": "Unsupported algorithm included ({}".format(x)}
 
         file_key = [x for x in request.files.keys()][0]
-        x = MultiHash.from_flo(
+        x = multihash.MultiHash.from_flo(
             request.files[file_key],
             hashers=hashers,
             chunksize=BLUEPRINT.config['BUFF']
@@ -77,6 +79,11 @@ def handle_configs(setup_state):
     if BLUEPRINT.config.get('DEFER_CONFIG'):
         log.debug("DEFER_CONFIG set, skipping configuration")
         return
+
+    if BLUEPRINT.config.get("DISALLOWED_ALGOS"):
+        BLUEPRINT.config['DISALLOWED_ALGOS'] = BLUEPRINT.config['DISALLOWED_ALGOS'].split(",")
+    else:
+        BLUEPRINT.config['DISALLOWED_ALGOS'] = []
 
     if BLUEPRINT.config.get("VERBOSITY"):
         log.debug("Setting verbosity to {}".format(str(BLUEPRINT.config['VERBOSITY'])))
