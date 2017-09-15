@@ -35,7 +35,10 @@ Inject environmental variables appropriately at either buildtime or runtime
 * JSON: A list of all available hasher names
 
 # Environmental Variables
-* None
+* CHECKSUMMIT_DISALLOWED_ALGOS: A comma separated list of algorithms to prevent from running
+    * Examples
+        * md5,
+        * md5,sha256,MD5,adler32
 
 # Author
 Brian Balsamo <brian@brianbalsamo.com>
