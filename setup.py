@@ -9,7 +9,7 @@ def readme():
 setup(
     name="checksummit",
     description="An API for computing checksums and hashes",
-    version="0.2.0",
+    version="0.2.1",
     long_description=readme(),
     author="Brian Balsamo",
     author_email="brian@brianbalsamo.com",

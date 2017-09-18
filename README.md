@@ -1,6 +1,6 @@
 # checksummit
 
-v0.2.0
+v0.2.1
 
 [![Build Status](https://travis-ci.org/bnbalsamo/checksummit.svg?branch=master)](https://travis-ci.org/bnbalsamo/checksummit) [![Coverage Status](https://coveralls.io/repos/github/bnbalsamo/checksummit/badge.svg?branch=master)](https://coveralls.io/github/bnbalsamo/checksummit?branch=master)
 
