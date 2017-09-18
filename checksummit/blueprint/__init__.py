@@ -16,7 +16,7 @@ multihash.additional_hashers.add(adler32)
 
 __author__ = "Brian Balsamo"
 __email__ = "brian@brianbalsamo.com"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 BLUEPRINT = Blueprint('checksummit', __name__)
