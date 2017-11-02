@@ -5,7 +5,6 @@ before_script:
     - pip install pytest coverage python-coveralls flake8
 install: 
     - "python setup.py install"
-    - "pip install -r requirements.txt"
     - "pip install -r requirements_dev.txt"
 script: 
     - coverage run --source checksummit -m py.test 
