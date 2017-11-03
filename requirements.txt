@@ -1,1 +1,2 @@
--e .
+-e git://github.com/bnbalsamo/nothashes.git#egg=nothashes
+-e git://github.com/bnbalsamo/multihash.git#egg=multihash
