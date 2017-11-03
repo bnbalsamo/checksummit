@@ -21,9 +21,7 @@ __version__ = "0.2.1"
 
 BLUEPRINT = Blueprint('checksummit', __name__)
 
-BLUEPRINT.config = {
-    'BUFF': 1024 * 1000
-}
+BLUEPRINT.config = {}
 
 API = Api(BLUEPRINT)
 
@@ -63,13 +61,13 @@ class FileIn(Resource):
                     multihash.new(n)
                 )
             except:
-                return {"message": "Unsupported algorithm included ({}".format(n)}
+                return {"message": "Unsupported algorithm included ({})".format(n)}
 
-        file_key = [x for x in request.files.keys()][0]
+        file_key = list(request.files.keys())[0]
         h = multihash.MultiHash.from_flo(
             request.files[file_key],
             hashers=hashers,
-            chunksize=BLUEPRINT.config['BUFF']
+            chunksize=int(BLUEPRINT.config.get("BUFF", 1024))
         )
         return h.hexdigest()
 
@@ -104,7 +102,9 @@ class TextIn(Resource):
 class AvailableAlgos(Resource):
     def get(self):
         return list(
-            multihash.algorithms_available().difference(set(BLUEPRINT.config['DISALLOWED_ALGOS']))
+            multihash.algorithms_available().difference(
+                set(BLUEPRINT.config['DISALLOWED_ALGOS'])
+            )
         )
 
 

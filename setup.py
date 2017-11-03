@@ -19,12 +19,6 @@ setup(
     ),
     include_package_data=True,
     url='https://github.com/bnbalsamo/checksummit',
-    dependency_links=[
-        'https://github.com/bnbalsamo/multihash' +
-        '/tarball/master#egg=multihash',
-        'https://github.com/bnbalsamo/nothashes' +
-        '/tarball/master#egg=nothashes'
-    ],
     install_requires=[
         'flask>0',
         'flask_env',
