@@ -1,3 +1,15 @@
+# ARCHIVED
+
+This repository is archived. I am no longer actively developing/supporting it.
+
+If you are interested in discussing the contents of this repository feel free to contact me
+via the contact details provided in the "Author" section below.
+
+A quick note, from me several years in the future (and with considerably more software experience): 
+This project was, generally speaking, not written correctly and was not a sound idea.
+It doesn't use the proper streaming APIs, and introducing network latency into a hashing operation,
+which frequently occurs in tight loops, is pretty terrible.
+
 # checksummit
 
 v0.2.2
